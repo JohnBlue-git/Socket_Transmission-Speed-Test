@@ -31,7 +31,7 @@ void *requestServer(void *arg) {
     if ( false == sendFile(clientSocket, &uploadSpeed) ) {
         pthread_exit(NULL);
     }
-    
+        
     // Handle download from server
     if ( false == recvFile(clientSocket) ) {
         pthread_exit(NULL);

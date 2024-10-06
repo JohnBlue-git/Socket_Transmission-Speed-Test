@@ -22,3 +22,13 @@ Received 1048577 bytes
 Average latency (micro second): 37.00
 Upload Speed (Mbps): 11848.32
 Download Speed (Mbps): 199.66
+
+#
+
+wget -O speedtest-cli https://raw.github.com/sivel/speedtest-cli/master/speedtest.py
+
+chmod +x speedtest-cli
+
+./speedtest-cli
+
+https://blog.gtwang.org/linux/speedtest-cli-linux-command/

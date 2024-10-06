@@ -11,7 +11,8 @@
 #include <sys/time.h> // for timeval gettimeofday()
 
 #define PING_TIME 5
-#define DATA_SIZE (10 * 1024 * 1024) // 10 MBytes of data
+#define DATA_SIZE (1024 * 1024) // 1 MBytes of data
+//                  (10 * 1024 * 1024) // 10 MBytes of data too big
 
 // Parse errno
 void parseErrno() {
@@ -88,7 +89,7 @@ bool pingRequest(const int clientSocket, double* averageLatency) {
 
     *averageLatency = calculateAverageLatency(totalSpan, PING_TIME);    
     
-    printf("Average latency (micro second): %.2f\n\n", *averageLatency);
+    //printf("Average latency (micro second): %.2f\n\n", *averageLatency);
     
     return true;
 }
@@ -132,8 +133,11 @@ bool sendFile(const int clientSocket, double* speed) {
     struct timeval start;
     gettimeofday(&start, NULL);
 
-    // Send data
-    ssize_t bytesSend = send(clientSocket, buffer, DATA_SIZE, 0);
+    // Send data (tripple round for averaging the performance)
+    ssize_t bytesSend = 0;
+    bytesSend += send(clientSocket, buffer, DATA_SIZE, 0);
+    bytesSend += send(clientSocket, buffer, DATA_SIZE, 0);
+    bytesSend += send(clientSocket, buffer, DATA_SIZE, 0);
     send(clientSocket, "V", 1, 0);
     if (bytesSend < 0) {
         parseErrno();
@@ -157,7 +161,6 @@ bool sendFile(const int clientSocket, double* speed) {
     long unsigned duration = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
     *speed = calculateTransferSpeed(bytesSend, duration);
     /*
-    puts("");
     printf("Total time taken: %lu micro seconds\n", duration);
     printf("Speed (Mbps): %.2f\n", *speed);
     puts("");
