@@ -1,15 +1,23 @@
-## Object
+## Objective
 It is a simple program for transmission speed test. \
-The code also reveal basic socket programming. \
+The code also reveal basic socket programming.
 
-## Build
+## Speed test formula
+
+$$\text{Average Latency} = \frac{\text{Total Round-Trip Time}}{\text{Number of Measurements}}$$
+
+$$\text{Upload Speed} = \frac{\text{Total Data Uploaded}}{\text{Time Taken}}$$
+
+$$\text{Download Speed} = \frac{\text{Total Data Downloaded}}{\text{Time Taken}}$$
+
+## How to build
 cmake
 ```console
-cd build
-rm -rf * && cmake .. && make
+$ cd build
+$ rm -rf * && cmake .. && make
 ```
 
-## Run
+## How to run
 server side
 ```console
 $ ./server_side 
@@ -34,12 +42,23 @@ Upload Speed (Mbps): 11848.32
 Download Speed (Mbps): 199.66
 ```
 
-## Compare with standard
+## Compare with benchmark
+iperf
+```console
+$ sudo apt-get install iperf3
+
+$ iperf3 -s
+
+$ iperf3 -c <server_IP>
+
+# To measure bandwidth in both directions simultaneously, use the -d option:
+$ iperf3 -c <server_IP> -d
+```
 speedtest-cli
 ```console
-wget -O speedtest-cli https://raw.github.com/sivel/speedtest-cli/master/speedtest.py
+$ wget -O speedtest-cli https://raw.github.com/sivel/speedtest-cli/master/speedtest.py
 
-chmod +x speedtest-cli
+$ chmod +x speedtest-cli
 
-./speedtest-cli
+$ ./speedtest-cli
 ```
