@@ -100,7 +100,6 @@ void *createServer(void *arg) {
         pthread_t tid;
         if (pthread_create(&tid, NULL, handleClient, &clientSocket[que]) != 0) {
             perror("Error: Server side could not create thread for client");
-            pthread_cancel(tid);
             pthread_join(tid, NULL);
             continue;
         }
@@ -128,7 +127,6 @@ int main()
     pthread_t tid;
     if (pthread_create(&tid, NULL, createServer, NULL) != 0) {
         perror("Error: Could not create Server side");
-        pthread_cancel(tid);
         exit(EXIT_FAILURE);
     }
     
