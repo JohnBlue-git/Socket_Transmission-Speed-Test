@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstring>
 
+#include <regex.h> // for regex
+
 #include <unistd.h> // for sleep() usleep()
 
 #include <thread>
@@ -51,7 +53,7 @@ void requestServer(int clientSocket) {
     return;
 }
 
-void createClient() {
+void createClient(const char* server_ip) {
     int clientSocket;
     struct sockaddr_in serverAddr;
 
@@ -64,7 +66,12 @@ void createClient() {
 
     // Initialize server address structure
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // Server IP address
+    if ( NULL == server_ip ) {
+        serverAddr.sin_addr.s_addr = inet_addr("127.168.0.1");
+    }
+    else {
+        serverAddr.sin_addr.s_addr = inet_addr(server_ip);
+    }
     serverAddr.sin_port = htons(PORT);
 
     // Connect to server
@@ -87,13 +94,46 @@ void createClient() {
 }
 
 //
+// Regex check
+//
+
+bool isMatch(const char* input) {
+    // Define the regex pattern for IPv4
+    const char* pattern = "^([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
+
+    regex_t regex;
+    int ret = regcomp(&regex, pattern, REG_EXTENDED);
+    if (ret != 0) {
+        regfree(&regex);
+        return false;
+    }
+
+    ret = regexec(&regex, input, 0, NULL, 0);
+    regfree(&regex);
+    if (ret != 0) {
+        return false;
+    }
+   return true;
+}
+
+//
 // Main
 //
 
-int main()
+int main(int argc, char *argv[])
 {
+    // Parse input
+    const char* server_ip = NULL;
+    if ( argc > 2 || ( argc == 2 && false == isMatch(argv[1]) ) ) {
+        printf("Usage: ./client_side <server side ip>\n");
+        exit(EXIT_FAILURE);
+    }
+    else {
+        server_ip = argv[1];
+    }
+
     // Create client thread
-    std::thread clt(createClient);
+    std::thread clt(createClient, server_ip);
     if ( false == clt.joinable() ) {
         perror("Error: Could not create Client side");
         exit(EXIT_FAILURE);
