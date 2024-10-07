@@ -1,11 +1,9 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
+#include <iostream>
+#include <cstring>
 
 #include <unistd.h> // for sleep() usleep()
 
-#include <pthread.h>
+#include <thread>
 #include <arpa/inet.h> // for socket
 #include <errno.h> // for socket tracebility
 
@@ -17,54 +15,51 @@
 // Client side
 //
 
-void *requestServer(void *arg) {
-    int clientSocket = *((int *)arg);
-    
+void requestServer(int clientSocket) {
     // Proceed ping test
     double averageLatency;
     if ( false == pingRequest(clientSocket, &averageLatency) ) {
-        pthread_exit(NULL);
+        return;
     }
 
     // Proceed upload to server
     double uploadSpeed = 0.0;
     if ( false == sendFile(clientSocket, &uploadSpeed) ) {
-        pthread_exit(NULL);
+        return;
     }
         
     // Handle download from server
     if ( false == recvFile(clientSocket) ) {
-        pthread_exit(NULL);
+        return;
     }
     
     // Receive download speed
     double downloadSpeed = 0.0;
     if ( recv(clientSocket, &downloadSpeed, 8, 0) < 0 ) {
-        pthread_exit(NULL);
+        return;
     }
 
     // Close socket
     close(clientSocket);
     
     // Show transmission speed
-    printf("Average latency (micro second): %.2f\n", averageLatency);
-    printf("Upload Speed (Mbps): %.2f\n", uploadSpeed);
-    printf("Download Speed (Mbps): %.2f\n", downloadSpeed);
-    puts("");
+    std::cout << "Average latency (micro second): " << averageLatency << std::endl;
+    std::cout << "Upload Speed (Mbps): " << uploadSpeed << std::endl;
+    std::cout << "Download Speed (Mbps): " << downloadSpeed << std::endl
+    << std::endl;
 
-    pthread_exit(NULL);
+    return;
 }
 
-void *createClient(void *arg) {
+void createClient() {
     int clientSocket;
     struct sockaddr_in serverAddr;
-    pthread_t tid;
 
     // Create socket
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (clientSocket == -1) {
         perror("Error: Client side could not create socket");
-        pthread_exit(NULL);
+        return;
     }
 
     // Initialize server address structure
@@ -75,19 +70,20 @@ void *createClient(void *arg) {
     // Connect to server
     if (connect(clientSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
         perror("Error: Client side connection failed");
-        pthread_exit(NULL);
+        return;
     }
 
     // Create thread to send message
-    if (pthread_create(&tid, NULL, requestServer, &clientSocket) != 0) {
+    std::thread tid(requestServer, clientSocket);
+    if ( false == tid.joinable() ) {
         perror("Error: Client side could not create thread");
-        pthread_exit(NULL);
+        return;
     }
 
     // Wait for thread to complete
-    pthread_join(tid, NULL);
+    tid.join();
 
-    pthread_exit(NULL);
+    return;
 }
 
 //
@@ -97,14 +93,14 @@ void *createClient(void *arg) {
 int main()
 {
     // Create client thread
-    pthread_t clt;
-    if (pthread_create(&clt, NULL, createClient, NULL) != 0) {
+    std::thread clt(createClient);
+    if ( false == clt.joinable() ) {
         perror("Error: Could not create Client side");
         exit(EXIT_FAILURE);
     }
     
     // Join thread
-    pthread_join(clt, NULL);
+    clt.join();
     
    return EXIT_SUCCESS;
 }

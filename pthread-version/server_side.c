@@ -12,7 +12,7 @@
 #include <signal.h> // for timeout
 #include <semaphore.h> // for timeout
 
-#include "functions.hpp"
+#include "functions.h"
 
 #define PORT 8080 // Port
 #define MAX_CONNECTIONS 9 // Max 9 connection
@@ -55,7 +55,7 @@ void *createServer(void *arg) {
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket == -1) {
         perror("Error: Server side could not create socket");
-        exit(EXIT_FAILURE);
+        pthread_exit(NULL);
     }
 
     // Initialize server address structure
