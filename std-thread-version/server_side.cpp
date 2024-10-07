@@ -11,7 +11,7 @@
 
 #define PORT 8080 // Port
 #define MAX_CONNECTIONS 9 // Max 9 connection
-#define TIME_OUT 60 // second
+#define TIME_OUT 10 // second
 
 //
 // Server side
