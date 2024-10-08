@@ -75,6 +75,9 @@ $ chmod +x speedtest-cli
 
 $ ./speedtest-cli
 ```
+## General concept about socket programming
+Socket programming is a way of connecting two nodes on a network to communicate with each other. One socket(node) listens on a particular port at an IP, while the other socket reaches out to the other to form a connection. The server forms the listener socket while the client reaches out to the server. \
+ref: https://www.geeksforgeeks.org/socket-programming-cc/
 
 ## Another topic about socket (TCP and UDP server using select)
 The Select function is used to select between TCP and UDP sockets. This function gives instructions to the kernel to wait for any of the multiple events to occur and awakens the process only after one or more events occur or a specified time passes.
