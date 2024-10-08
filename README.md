@@ -10,6 +10,9 @@ $$\text{Upload Speed} = \frac{\text{Total Data Uploaded}}{\text{Time Taken}}$$
 
 $$\text{Download Speed} = \frac{\text{Total Data Downloaded}}{\text{Time Taken}}$$
 
+## Program flowchart
+![alt text](speed-test-1.png)
+
 ## How to build
 there are two version pthead-version / std-thread-version
 ```console
