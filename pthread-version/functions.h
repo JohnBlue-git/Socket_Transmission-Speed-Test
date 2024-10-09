@@ -14,6 +14,10 @@
 #define DATA_SIZE (1024 * 1024) // 1 MBytes of data
 //                  (10 * 1024 * 1024) // 10 MBytes of data too big
 
+#define REQ "REQ"
+#define ACK "ACK"
+#define MESSAGE_END "V"
+
 // Parse errno
 void parseErrno() {
     switch(errno) {
@@ -44,7 +48,7 @@ const double calculateAverageLatency(const int totalPingSpan, const int times) {
 
 // Ping send
 bool pingSend(const int clientSocket) {
-    const char* req = "ACK";
+    const char* req = REQ;
     if ( send(clientSocket, req, strlen(req), 0) < 0 ) {
         parseErrno();
         return false;
@@ -138,7 +142,7 @@ bool sendFile(const int clientSocket, double* speed) {
     bytesSend += send(clientSocket, buffer, DATA_SIZE, 0);
     bytesSend += send(clientSocket, buffer, DATA_SIZE, 0);
     bytesSend += send(clientSocket, buffer, DATA_SIZE, 0);
-    send(clientSocket, "V", 1, 0);
+    send(clientSocket, MESSAGE_END, 1, 0);
     if (bytesSend < 0) {
         parseErrno();
         return false;
@@ -180,7 +184,7 @@ bool recvFile(const int clientSocket) {
     ssize_t bytesRead, totalRead;
     while ( (bytesRead = recv(clientSocket, buffer, DATA_SIZE + 1, 0)) > 0) {
         totalRead += bytesRead;
-        if ('V' == buffer[bytesRead - 1]) {
+        if ( MESSAGE_END[0] == buffer[bytesRead - 1] ) {
             break;
         }
         // %.*s: *用来指定宽度，对应一个整数。
@@ -197,7 +201,7 @@ bool recvFile(const int clientSocket) {
     printf("Received %zd bytes\n\n", totalRead);    
 
     // Send ASK
-    const char* ack_data = "ACK";
+    const char* ack_data = ACK;
     send(clientSocket, ack_data, strlen(ack_data), 0);
     
     return true;
