@@ -79,6 +79,24 @@ $ ./speedtest-cli
 Socket programming is a way of connecting two nodes on a network to communicate with each other. One socket(node) listens on a particular port at an IP, while the other socket reaches out to the other to form a connection. The server forms the listener socket while the client reaches out to the server. \
 ref: https://www.geeksforgeeks.org/socket-programming-cc/
 
+## Set timout for socket
+In socket programming with C, you can set timeouts for the send and recv functions. This is useful to prevent your program from hanging indefinitely if the network is slow or unresponsive.
+```console
+// Set timeout for send
+timeout.tv_sec = 3;  // 3 seconds
+timeout.tv_usec = 0; // 0 microseconds
+if (setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout)) < 0) {
+	perror("setsockopt send");
+	exit(EXIT_FAILURE);
+}
+
+// Set timeout for recv
+if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
+	perror("setsockopt recv");
+	exit(EXIT_FAILURE);
+}
+```
+
 ## Another topic about socket (TCP and UDP server using select)
 The Select function is used to select between TCP and UDP sockets. This function gives instructions to the kernel to wait for any of the multiple events to occur and awakens the process only after one or more events occur or a specified time passes.
 ```console
